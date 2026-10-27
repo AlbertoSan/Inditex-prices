@@ -19,6 +19,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,6 +61,19 @@ class GetPriceServiceTest {
 
         assertEquals(0, new BigDecimal("25.45").compareTo(result.getAmount()));
         assertEquals(1, result.getPriority());
+    }
+
+    @Test
+    void returnsPriceWhenExactlyOnePriceApplies() {
+        when(loadPricePort.findApplicablePrices(35455, 1, DATE))
+                .thenReturn(List.of(lowPriority));
+
+        Price result = service.getPrice(new GetPriceQuery(35455, 1, DATE));
+
+        assertEquals(0, new BigDecimal("35.50").compareTo(result.getAmount()));
+        assertEquals(0, result.getPriority());
+        verify(loadPricePort, never()).existsByBrandId(1);
+        verify(loadPricePort, never()).existsByProductId(35455);
     }
 
     @Test

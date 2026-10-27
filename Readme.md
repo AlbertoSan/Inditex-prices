@@ -80,7 +80,7 @@ entorno `SERVER_PORT`).
 
 3. **Ejecutar las pruebas**
     ```bash
-    mvn test
+    mvn verify
     ```
 
 ### Endpoints útiles

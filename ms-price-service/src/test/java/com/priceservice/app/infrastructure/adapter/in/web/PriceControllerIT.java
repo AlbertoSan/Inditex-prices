@@ -5,6 +5,9 @@ import com.priceservice.app.application.port.in.GetPriceUseCase;
 import com.priceservice.app.domain.exception.PriceNotFoundException;
 import com.priceservice.app.domain.model.Price;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -13,9 +16,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,23 +41,46 @@ class PriceControllerIT {
     @MockitoBean
     private GetPriceUseCase getPriceUseCase;
 
-    @Test
-    void returns200WithPriceWhenFound() throws Exception {
-        Price price = Price.builder()
-                .brandId(1).productId(35455).priceList(1)
-                .startDate(OffsetDateTime.parse("2020-06-14T00:00:00Z"))
-                .endDate(OffsetDateTime.parse("2020-12-31T23:59:59Z"))
-                .priority(0).amount(new BigDecimal("35.50")).currency("EUR")
-                .build();
+    @ParameterizedTest(name = "returns {0}")
+    @MethodSource("successfulPrices")
+    void returns200WithPriceWhenFound(String scenario, Price price, String requestedAt) throws Exception {
         when(getPriceUseCase.getPrice(any(GetPriceQuery.class))).thenReturn(price);
 
-        mockMvc.perform(get("/v1/brands/1/products/35455/price")
-                        .param("date", "2020-06-14T10:00:00Z"))
+        mockMvc.perform(get("/v1/brands/{brandId}/products/{productId}/price",
+                        price.getBrandId(), price.getProductId())
+                        .param("date", requestedAt))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.brandId").value(1))
-                .andExpect(jsonPath("$.productId").value(35455))
-                .andExpect(jsonPath("$.price").value(35.50))
-                .andExpect(jsonPath("$.curr").value("EUR"));
+                .andExpect(jsonPath("$.brandId").value(price.getBrandId()))
+                .andExpect(jsonPath("$.productId").value(price.getProductId()))
+                .andExpect(jsonPath("$.price").value(price.getAmount().doubleValue()))
+                .andExpect(jsonPath("$.curr").value(price.getCurrency()));
+
+        verify(getPriceUseCase).getPrice(new GetPriceQuery(
+                price.getProductId(), price.getBrandId(), OffsetDateTime.parse(requestedAt)));
+    }
+
+    private static Stream<Arguments> successfulPrices() {
+        return Stream.of(
+                arguments("the standard EUR price", price(1, 35455, "35.50", "EUR", 0),
+                        "2020-06-14T10:00:00Z"),
+                arguments("a discounted EUR price", price(1, 35455, "25.45", "EUR", 1),
+                        "2020-06-14T16:00:00Z"),
+                arguments("a price with another currency and identifiers", price(2, 12345, "0.99", "USD", 2),
+                        "2020-06-15T10:00:00+02:00"),
+                arguments("the minimum-cent EUR price", price(1, 35455, "0.01", "EUR", 0),
+                        "2020-06-14T21:00:00Z"),
+                arguments("a higher-value GBP price", price(3, 98765, "999.99", "GBP", 3),
+                        "2020-06-16T21:00:00Z")
+        );
+    }
+
+    private static Price price(int brandId, int productId, String amount, String currency, int priority) {
+        return Price.builder()
+                .brandId(brandId).productId(productId).priceList(priority + 1)
+                .startDate(OffsetDateTime.parse("2020-06-14T00:00:00Z"))
+                .endDate(OffsetDateTime.parse("2020-12-31T23:59:59Z"))
+                .priority(priority).amount(new BigDecimal(amount)).currency(currency)
+                .build();
     }
 
     @Test

@@ -191,6 +191,18 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<!-- Test coverage -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
@@ -202,6 +214,16 @@
 						<goals>
 							<goal>prepare-agent</goal>
 						</goals>
+					</execution>
+					<execution>
+						<id>prepare-agent-integration</id>
+						<goals>
+							<goal>prepare-agent-integration</goal>
+						</goals>
+						<configuration>
+							<destFile>${project.build.directory}/jacoco.exec</destFile>
+							<append>true</append>
+						</configuration>
 					</execution>
 					<execution>
 						<id>report</id>
