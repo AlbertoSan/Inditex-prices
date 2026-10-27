@@ -112,9 +112,9 @@ La simulación vive en `src/gatling/java` y se ejecuta en un perfil aparte, sin
 afectar al build normal:
 
 ```bash
-# 1) Arranca la app sin rate limit
+# 1) Start the app without rate limiting
 java -jar target/ms-price-service.jar --ratelimit.enabled=false
-# 2) Compila la simulación y lánzala (perfil gatling)
+# 2) Compile and run the simulation (Gatling profile)
 mvn -Pgatling test-compile gatling:test
 ```
 

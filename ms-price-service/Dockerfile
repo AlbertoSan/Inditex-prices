@@ -2,7 +2,7 @@
 FROM maven:3.9-eclipse-temurin-25 AS build
 WORKDIR /build
 
-# Cache de dependencias: primero el pom, luego el código
+# Cache dependencies: copy the POM first, then the source code
 COPY pom.xml .
 RUN mvn -B -q dependency:go-offline
 
@@ -13,7 +13,7 @@ RUN mvn -B -q clean package -DskipTests
 FROM eclipse-temurin:25-jre
 WORKDIR /app
 
-# Ejecutar como usuario no root
+# Run as a non-root user
 RUN groupadd --system spring && useradd --system --gid spring spring
 USER spring:spring
 

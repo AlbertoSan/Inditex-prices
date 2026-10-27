@@ -18,10 +18,10 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test de integración full-stack: entra por el endpoint REST (puerto real) y
- * baja por todas las capas hasta H2, usando los datos de data.sql. Cubre los 5
- * escenarios del enunciado, un caso de error y la cache condicional (ETag). El
- * rate limiter se desactiva para no estrangular la batería de peticiones.
+ * Full-stack integration test: sends requests through the REST endpoint (real
+ * port) and traverses every layer down to H2, using data.sql. Covers the five
+ * challenge scenarios, an error case, and conditional caching (ETag). The
+ * rate limiter is disabled to avoid throttling the request suite.
  */
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,

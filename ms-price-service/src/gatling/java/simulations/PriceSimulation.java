@@ -13,15 +13,15 @@ import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 
 /**
- * Prueba de carga sobre GET /prices con los 5 escenarios conocidos de la prueba.
+ * Load test for GET /prices using the five scenarios defined in the challenge.
  *
- * IMPORTANTE: el rate limiter (5 req/s por IP) estrangularía la carga. Arranca
- * la aplicación con -Dratelimit.enabled=false antes de lanzar la simulación:
+ * IMPORTANT: the rate limiter (5 req/s per IP) would throttle the load. Start
+ * the application with -Dratelimit.enabled=false before running the simulation:
  *
  *   1) java -jar target/ms-price-service.jar --ratelimit.enabled=false
  *   2) mvn -Pgatling gatling:test
  *
- * La URL base se puede sobreescribir con -DbaseUrl=http://host:puerto
+ * Override the base URL with -DbaseUrl=http://host:port
  */
 public class PriceSimulation extends Simulation {
 

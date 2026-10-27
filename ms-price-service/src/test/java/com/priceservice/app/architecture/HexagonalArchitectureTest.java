@@ -9,9 +9,9 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 
 /**
- * Verifica que se respeta la arquitectura hexagonal: la direccionalidad de las
- * capas y la pureza del núcleo (domain/application sin acoplarse a Spring ni a
- * detalles de infraestructura).
+ * Verifies the hexagonal architecture: layer dependencies point in the right
+ * direction, and the core (domain/application) has no dependencies on Spring
+ * or infrastructure details.
  */
 @AnalyzeClasses(
         packages = "com.priceservice.app",

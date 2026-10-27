@@ -28,9 +28,9 @@ public class FilterConfig {
     }
 
     /**
-     * Genera el ETag de la respuesta y atiende las peticiones condicionales
-     * (If-None-Match -> 304 Not Modified), reduciendo el tráfico de respuestas
-     * idénticas. Combinado con el Cache-Control que fija el controlador.
+     * Generates the response ETag and handles conditional requests
+     * (If-None-Match -> 304 Not Modified), reducing traffic for identical
+     * responses. Works together with the Cache-Control set by the controller.
      */
     @Bean
     public FilterRegistrationBean<ShallowEtagHeaderFilter> etagFilter() {

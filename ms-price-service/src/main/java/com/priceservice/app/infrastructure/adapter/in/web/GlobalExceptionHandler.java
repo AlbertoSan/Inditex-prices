@@ -17,10 +17,10 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
 /**
- * Manejo centralizado de errores con el estándar RFC 7807 ({@link ProblemDetail},
- * nativo en Spring 6, serializado como application/problem+json). Las excepciones
- * de negocio se traducen a un problema con su estado; el resto de errores de
- * Spring MVC los gestiona la clase base, que ya produce ProblemDetail.
+ * Centralized error handling using the RFC 7807 standard ({@link ProblemDetail},
+ * built into Spring 6 and serialized as application/problem+json). Business
+ * exceptions are mapped to problems with their corresponding status; Spring MVC
+ * handles other errors through the base class, which already produces ProblemDetail.
  */
 @Slf4j
 @ControllerAdvice
