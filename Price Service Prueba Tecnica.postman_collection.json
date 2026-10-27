@@ -1,0 +1,39 @@
+{
+	"info": {
+		"_postman_id": "a5be5b5e-cb9d-4f79-a0f3-cfcd08cda628",
+		"name": "Price Service - Prueba Tecnica",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get applicable price",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/v1/brands/1/products/35455/price?date=2020-06-14T17:12:30.174Z",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"brands",
+						"1",
+						"products",
+						"35455",
+						"price"
+					],
+					"query": [
+						{
+							"key": "date",
+							"value": "2020-06-14T17:12:30.174Z"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

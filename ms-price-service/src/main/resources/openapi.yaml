@@ -1,0 +1,80 @@
+openapi: "3.0.0"
+info:
+  title: "Price API"
+  version: "1.0.0"
+paths:
+  /v1/brands/{brandId}/products/{productId}/price:
+    get:
+      operationId: "getApplicablePrice"
+      tags:
+        - prices
+      summary: "Obtener el precio aplicable de un producto de una cadena para una fecha"
+      parameters:
+        - name: brandId
+          in: path
+          required: true
+          description: "Identificador de la cadena (p.ej. 1 = ZARA)"
+          schema:
+            type: integer
+            minimum: 1
+        - name: productId
+          in: path
+          required: true
+          description: "Identificador del producto"
+          schema:
+            type: integer
+            minimum: 1
+        - name: date
+          in: query
+          required: true
+          description: "Fecha de aplicación (ISO-8601)"
+          schema:
+            type: string
+            format: date-time
+      responses:
+        200:
+          description: "Operación exitosa"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceResponse"
+        400:
+          description: "Solicitud inválida"
+          content:
+            application/problem+json:
+              schema:
+                type: object
+        404:
+          description: "Precio no encontrado"
+          content:
+            application/problem+json:
+              schema:
+                type: object
+        default:
+          description: "Error inesperado"
+          content:
+            application/problem+json:
+              schema:
+                type: object
+
+components:
+  schemas:
+    PriceResponse:
+      type: object
+      properties:
+        brandId:
+          type: integer
+        productId:
+          type: integer
+        priceList:
+          type: integer
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        price:
+          type: number
+        curr:
+          type: string

@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.14</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.priceservice</groupId>
+	<artifactId>ms-price-service</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>Product Price Service</name>
+	<description>A Spring Boot application designed to manage product prices.      The service provides a RESTful API to query prices based on various parameters like brand ID,      product ID, and application date. It uses an in-memory H2 database and offers a prioritization      mechanism to resolve conflicting prices.</description>
+	<properties>
+		<java.version>25</java.version>
+		<cucumber.version>7.15.0</cucumber.version>
+		<gatling.version>3.15.1</gatling.version>
+		<gatling-maven-plugin.version>4.21.5</gatling-maven-plugin.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<!-- Bean Validation (namespace jakarta en Spring Boot 3) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+		<!-- Observabilidad: health, métricas y endpoint Prometheus -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- Caché (abstracción de Spring + proveedor Caffeine en memoria) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- Documentación OpenAPI / Swagger UI (serie 2.x para Spring Boot 3) -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.8.17</version>
+		</dependency>
+		<!-- Requerido por los modelos generados por openapi-generator -->
+		<dependency>
+			<groupId>org.openapitools</groupId>
+			<artifactId>jackson-databind-nullable</artifactId>
+			<version>0.2.4</version>
+		</dependency>
+
+		<!-- Testing -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-java</artifactId>
+			<version>${cucumber.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-spring</artifactId>
+			<version>${cucumber.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- Cucumber sobre JUnit Platform (sustituye al runner JUnit 4) -->
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-junit-platform-engine</artifactId>
+			<version>${cucumber.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-suite</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- Tests de arquitectura -->
+		<dependency>
+			<groupId>com.tngtech.archunit</groupId>
+			<artifactId>archunit-junit5</artifactId>
+			<version>1.4.2</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<finalName>ms-price-service</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>7.16.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/src/main/resources/openapi.yaml</inputSpec>
+							<generatorName>spring</generatorName>
+							<library>spring-boot</library>
+
+							<modelNameSuffix>Dto</modelNameSuffix>
+							<generateApis>true</generateApis>
+							<generateApiTests>false</generateApiTests>
+							<generateApiDocumentation>false</generateApiDocumentation>
+							<generateModelTests>false</generateModelTests>
+							<generateModelDocumentation>false</generateModelDocumentation>
+							<generateSupportingFiles>false</generateSupportingFiles>
+
+							<environmentVariables>
+								<supportingFiles>
+									ApiUtil.java
+								</supportingFiles>
+							</environmentVariables>
+
+							<configOptions>
+								<interfaceOnly>true</interfaceOnly>
+								<useSpringBoot3>true</useSpringBoot3>
+								<useTags>true</useTags>
+								<useBeanValidation>true</useBeanValidation>
+								<performBeanValidation>true</performBeanValidation>
+								<modelPackage>com.priceservice.openapi.model</modelPackage>
+								<apiPackage>com.priceservice.openapi.api</apiPackage>
+								<sourceFolder>src/main/java</sourceFolder>
+								<implFolder>src/main/java</implFolder>
+								<serializableModel>true</serializableModel>
+							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<!-- Cobertura de tests -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.14</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<!--
+			Perfil de pruebas de carga con Gatling. No se ejecuta en el build normal.
+			Uso: arrancar la app (idealmente con -Dratelimit.enabled=false para no
+			estrangular la carga) y luego:  mvn -Pgatling gatling:test
+		-->
+		<profile>
+			<id>gatling</id>
+			<properties>
+				<!--
+					Gatling 3.15 requiere Netty 4.2.x (clases IoOps/IoHandle). El parent
+					de Spring Boot 3.5 fija 4.1.x y se lo impone a Gatling. Sobreescribimos
+					la versión SOLO en este perfil; el build de la app no se ve afectado.
+					Si cambiara, comprueba la versión con:
+					mvn -Pgatling dependency:tree -Dincludes=io.netty
+				-->
+				<netty.version>4.2.2.Final</netty.version>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>io.gatling.highcharts</groupId>
+					<artifactId>gatling-charts-highcharts</artifactId>
+					<version>${gatling.version}</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<!--
+						Añade src/gatling/java como fuente de test SOLO con este perfil,
+						de modo que el build normal no compile las simulaciones (que dependen
+						de Gatling). Con el perfil activo, test-compile las compila a
+						target/test-classes y gatling:test las encuentra.
+					-->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>3.6.0</version>
+						<executions>
+							<execution>
+								<id>add-gatling-sources</id>
+								<phase>generate-test-sources</phase>
+								<goals>
+									<goal>add-test-source</goal>
+								</goals>
+								<configuration>
+									<sources>
+										<source>${project.basedir}/src/gatling/java</source>
+									</sources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>io.gatling</groupId>
+						<artifactId>gatling-maven-plugin</artifactId>
+						<version>${gatling-maven-plugin.version}</version>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>
